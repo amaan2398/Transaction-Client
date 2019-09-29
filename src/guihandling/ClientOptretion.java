@@ -8,18 +8,21 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import manager.ErrorManager;
+import manager.InputManager;
 import socketpro.ClientSocket;
 
 public class ClientOptretion extends JFrame{
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
+	
 	private static int x=100,y=100;
+	
 	private static String account;
 	private static String balance;
+	
 	private static String loginID;
 	private static JLabel balanceL;
+	
 	private static JTextField amountTF;
 	private static JTextField AtranTF;
 	
@@ -27,14 +30,20 @@ public class ClientOptretion extends JFrame{
 		account=acc;
 		balance=bal;
 		loginID=id;
+		
 		userDetails();
+		
 		transactionButton();
+		
 		refreash();
+		
 		setSize(600,600);
 		setLayout(null);  
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
+	
+	//user UI
 	public void userDetails() {
 		JLabel accT=new JLabel("Account Number:");
 		accT.setBounds(x,y,100,30);
@@ -52,9 +61,10 @@ public class ClientOptretion extends JFrame{
 		add(balT);
 			
 	}
+	
+	//transaction UI
 	public void transactionButton() {
-		JLabel Atran;  
-		
+		JLabel Atran;
 		Atran=new JLabel("Account No. to transfer:");  
 		Atran.setBounds(x,y+100, 250,30);
 	    add(Atran);
@@ -62,8 +72,7 @@ public class ClientOptretion extends JFrame{
 	    AtranTF.setBounds(x,y+150, 200,30);
 	    add(AtranTF);
 	    
-	    JLabel amount;  
-		
+	    JLabel amount;	
 		amount=new JLabel("Amount:");  
 		amount.setBounds(x,y+200, 250,30);
 	    add(amount);
@@ -80,10 +89,21 @@ public class ClientOptretion extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String str =ClientSocket.transaction(amountTF.getText(), loginID, AtranTF.getText());
-				balanceL.setText("\t"+str);	
+				if(InputManager.isResult()) {
+					balanceL.setText("\t"+str);	
+				}else if(str.equals("account_doesn't_exist")){
+					ErrorManager.accountdoesntexist();
+				}else if(str.equals("balance_is_low")){
+					ErrorManager.balancelow();
+				}else{
+					ErrorManager.servererror();
+				}
 			}
 		});
+		
 	}
+	
+	//refresh UI
 	public void refreash() {
 		JButton tran=new JButton("Refresh");
 		tran.setBounds(x+175,y+75,95,30);

@@ -7,19 +7,22 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+
+import manager.ErrorManager;
+import manager.InputManager;
 import socketpro.ClientSocket;
 
 public class Gui extends JFrame{
-	/** Login Page **/
 	private static final long serialVersionUID = 1L;
+	
 	private static int x=100,y=100;
 	
 	public Gui() {
 		
 		loginpage();
-		//here below code is for window size
-		setSize(600,600);//width and height
-		setLayout(null);//no specific Layout  
+		
+		setSize(600,600);
+		setLayout(null);  
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//safely close window.
 		
@@ -53,8 +56,15 @@ public class Gui extends JFrame{
 	        public void actionPerformed(ActionEvent e)
 	        {
 	        	
-	        	ClientSocket.login(logT.getText(),passT.getPassword());
-	        	dispose();
+	    		ClientSocket.login(logT.getText(),passT.getPassword());
+	        	if(InputManager.isResult()) {
+	        		dispose();
+	        	}
+	        	else {
+	        		ErrorManager.loginidpass();
+	        		logT.setText("");
+	        		passT.setText("");
+	        	}
 	        }
 	      });
 	    add(logB);

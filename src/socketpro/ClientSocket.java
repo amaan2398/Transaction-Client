@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.util.StringTokenizer;
 
 import guihandling.ClientOptretion;
+import manager.InputManager;
 
 public class ClientSocket {
 	private static String loginID="";
@@ -30,10 +31,17 @@ public class ClientSocket {
 	private static DataInputStream dis;
 	private static DataOutputStream dos;
 	
-	public static void stringSlice(String str) {
+	public static void stringSlice(String str,String who) {
     	StringTokenizer st1 = new StringTokenizer(str);
-    	acc=st1.nextToken();
-    	bal=st1.nextToken();
+    	if(who.equals("login")) {
+    		acc=st1.nextToken();
+    		bal=st1.nextToken();
+    	}
+    	if(who.equals("transaction")) {
+    		balance=st1.nextToken();
+    	}
+    	InputManager.setResult(st1.nextToken().equals("true"));
+    	
     }
 	
 	private static void serverconn() {
@@ -71,9 +79,7 @@ public class ClientSocket {
             		System.out.println("Error in choice");
             		break;
             	}
-            	
-            	
-                // If client sends exit,close this connection  
+            	// If client sends exit,close this connection  
                 // and then break from the while loop 
                 if(tosend.equals("Exit")){ 
                 	
@@ -100,10 +106,11 @@ public class ClientSocket {
 			dos.writeUTF(tosend1);
 			
 			String received = dis.readUTF();
-			stringSlice(received);
+			stringSlice(received,"login");
 			tosend="Exit";
-			new ClientOptretion(acc,bal,loginID);
-			
+			if(InputManager.isResult()) {
+				new ClientOptretion(acc,bal,loginID);
+			}
 		} catch (Exception e) {
 			System.out.println("Login Error client!!!");
 			System.out.println(e);
@@ -112,11 +119,10 @@ public class ClientSocket {
 	}
 	private static void sendtransaction() {
 		try {
-			//do something
 			String tosend1=amount+" "+from+" "+to;
 			dos.writeUTF(tosend1);
 			
-			balance = dis.readUTF();
+			stringSlice( dis.readUTF(),"transaction");
 			//setBalanceL(received);
 			tosend="Exit";
 			
@@ -138,6 +144,7 @@ public class ClientSocket {
 	
 	public static void login(String id,char[] pass) {
 		loginID=id;
+		password="";
 		for(int i=0;i<pass.length;i++) {
 			password+=Character.toString(pass[i]);
 		}
